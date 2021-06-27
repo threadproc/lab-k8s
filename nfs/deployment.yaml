@@ -29,11 +29,11 @@ spec:
             - name: PROVISIONER_NAME
               value: k8s-sigs.io/nfs-subdir-external-provisioner
             - name: NFS_SERVER
-              value: k8s-nfs.k8s.threadproc.io
+              value: k8s-nfs.threadproc.io
             - name: NFS_PATH
               value: /mnt/storage/k8s
       volumes:
         - name: nfs-client-root
           nfs:
-            server: k8s-nfs.k8s.threadproc.io
+            server: k8s-nfs.threadproc.io
             path: /mnt/storage/k8s
