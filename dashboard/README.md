@@ -1,7 +1,7 @@
 # dashboard
 
-This is a very insecure configuration for the Kubernetes dashboard!
+This is the stock config for Kubernetes dashboard, except it will not run on
+a control plane node.
 
-It does not require auth, and I also gave the kubernetes-dashboard ServiceAccount cluster-admin privileges so that I don't need to copy and paste a token.
-
-**Never do this in production!**
+It's not _great_ practice to expose the dashboard publicly, but alas I do what
+I want.
