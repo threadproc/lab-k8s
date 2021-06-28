@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-devicequery
+  labels:
+    app: gpu-devicequery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpu-devicequery
+  template:
+    metadata:
+      labels:
+        app: gpu-devicequery
+    spec:
+      containers:
+        - name: devicequery
+          image: ghcr.io/threadproc/jetson-devicequery:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+      nodeSelector:
+        nvidia.com/gpu: "true"
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpu-devicequery
+  labels:
+    app: gpu-devicequery
+spec:
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: gpu-devicequery
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gpu-devicequery
+spec:
+  rules:
+  - host: "k8s-gpu.threadproc.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: gpu-devicequery
+            port:
+              number: 80
