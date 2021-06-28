@@ -1,0 +1,64 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: helloworld
+  namespace: default
+spec:
+  rules:
+  - host: "k8s-helloworld.threadproc.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: helloworld-all
+            port:
+              number: 80
+  - host: "k8s-hello.threadproc.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: helloworld-all
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: helloworld-amd64
+  namespace: default
+spec:
+  rules:
+  - host: "k8s-hello-amd64.threadproc.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: helloworld-amd64
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: helloworld-arm64
+  namespace: default
+spec:
+  rules:
+  - host: "k8s-hello-arm64.threadproc.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: helloworld-arm64
+            port:
+              number: 80
+---
