@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-index
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kube-index
+rules:
+- apiGroups: ["networking.k8s.io"]
+  resources: ["ingresses"]
+  verbs: ["list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-index
+subjects:
+- kind: ServiceAccount
+  name: kube-index
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: kube-index
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-index
+  labels:
+    app: kube-index
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-index
+  template:
+    metadata:
+      labels:
+        app: kube-index
+    spec:
+      containers:
+        - name: kube-index
+          image: "ghcr.io/threadproc/kube-index:latest"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          #livenessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: http
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: http
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      serviceAccountName: kube-index
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-index
+  labels:
+    app: kube-index
+spec:
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: kube-index
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kube-index
+  namespace: default
+spec:
+  rules:
+  - host: "k8s-index.threadproc.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kube-index
+            port:
+              number: 80
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kube-index
+            port:
+              number: 80
