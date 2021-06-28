@@ -20,7 +20,7 @@ metadata:
   labels:
     app: helloworld
 spec:
-  replicas: 10
+  replicas: 11
   selector:
     matchLabels:
       app: helloworld
@@ -72,3 +72,21 @@ spec:
                 values:
                 - helloworld
             topologyKey: "kubernetes.io/hostname"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: helloworld
+  namespace: default
+spec:
+  rules:
+  - host: "k8s-helloworld.threadproc.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: helloworld
+            port:
+              number: 80
