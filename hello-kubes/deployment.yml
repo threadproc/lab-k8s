@@ -127,5 +127,9 @@ spec:
                 values:
                 - helloworld
             topologyKey: "kubernetes.io/hostname"
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
 ---
 
