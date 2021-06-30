@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotdog-or-not
+  labels:
+    app: hotdog-or-not
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hotdog-or-not
+  template:
+    metadata:
+      labels:
+        app: hotdog-or-not
+    spec:
+      containers:
+        - name: hotdog-or-not
+          image: ghcr.io/threadproc/hotdog-or-not:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+      nodeSelector:
+        nvidia.com/gpu: "true"
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotdog-or-not
+  labels:
+    app: hotdog-or-not
+spec:
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: hotdog-or-not
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hotdog-or-not
+spec:
+  rules:
+  - host: "k8s-hotdog.threadproc.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hotdog-or-not
+            port:
+              number: 80
